@@ -1,6 +1,7 @@
 import React from 'react'
 import "./rootLayout.css"
 import {Link, Outlet} from "react-router-dom"
+import {SignedIn, UserButton } from "@clerk/clerk-react";
 
 const RootLayout = () => {
   return (
@@ -10,6 +11,11 @@ const RootLayout = () => {
           {/* <img src="/logo.png" alt="" /> */}
           <span>SHIRAZ AI</span>
         </Link>
+    <div className="user">
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+        </div>
       </header>
 
     {/* passing all pages */}

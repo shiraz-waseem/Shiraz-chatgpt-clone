@@ -28,6 +28,7 @@ const router = createBrowserRouter([
         ),
       },
       {
+        // * means every children of this page
         path: "/sign-in/*",
         element: <SignInPage />,
       },
