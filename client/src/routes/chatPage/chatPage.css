@@ -19,7 +19,8 @@
             gap: 20px;
       
             p,li{
-              margin: 10px 0px;
+              margin: 10px 0px;   
+              /* gpt ke responses */
             }
 
             .message{
