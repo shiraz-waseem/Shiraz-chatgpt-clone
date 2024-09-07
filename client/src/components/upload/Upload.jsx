@@ -31,23 +31,41 @@ function Upload({ setImg }) {
     const onError = err => {
         console.log("Error", err);
     };
-    
+
     const onSuccess = res => {
         console.log("Success", res);
         setImg((prev) => ({ ...prev, isLoading: false, dbData: res }));
     };
-    
-    const onUploadProgress = progress => {
+
+    const onUploadProgress = (progress) => {
         console.log("Progress", progress);
     };
-    
-    const onUploadStart = evt => {
-        console.log("Start", evt);
-        // Make it loading
-        setImg((prev) => ({
-            ...prev,
-            isLoading: true,
-        }))
+
+    const onUploadStart = (evt) => {
+        const file = evt.target.files[0];
+
+        //read our file. 
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImg((prev) => ({
+                ...prev,
+                isLoading: true,
+                aiData: {
+                    inlineData: {
+                        data: reader.result.split(",")[1],
+                        mimeType: file.type,
+                    },
+                }
+            }))
+        }
+        reader.readAsDataURL(file)
+
+        // console.log("Start", evt);  // evt includes file
+        // // Make it loading
+        // setImg((prev) => ({
+        //     ...prev,
+        //     isLoading: true,
+        // }))
     };
 
     return (
@@ -66,12 +84,12 @@ function Upload({ setImg }) {
                 style={{ display: "none" }}
                 ref={ikUploadRef}
             />
-             {/* when we click on this label upper wala component call on is lia useRef bana lia  */}
+            {/* when we click on this label upper wala component call on is lia useRef bana lia  */}
             {
-        <label onClick={() => ikUploadRef.current.click()}>
-          <img src="/attachment.png" alt="" />
-        </label>
-      }
+                <label onClick={() => ikUploadRef.current.click()}>
+                    <img src="/attachment.png" alt="" />
+                </label>
+            }
         </IKContext>
     );
 }

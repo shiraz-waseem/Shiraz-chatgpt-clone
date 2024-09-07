@@ -12,7 +12,25 @@ const NewPrompt = () => {
     isLoading: false,
     error: "",
     dbData: {},    // image data
-    aiData: {},
+    aiData: {},   // added
+  });
+
+
+  //saving chat
+  const chat = model.startChat({
+    history: [
+      {
+        role: "user",
+        parts: [{ text: "Hi my name is Bob" }],
+      },
+      {
+        role: "model",
+        parts: [{ text: "Hi Bob!" }],
+      },
+    ],
+    generationConfig: {
+      // maxOutputTokens: 100,
+    },
   });
 
   const endRef = useRef(null);
@@ -41,9 +59,16 @@ const NewPrompt = () => {
     // console.log(text)
 
     if (!isInitial) setQuestion(text);   // agar false tw question set
-    const result = await model.generateContent(text);
-    const response = await result.response
-    setAnswer(response.text())
+    // instead of sendMessage use sendMessageStream it will be first and send answer word by word
+    const result = await chat.sendMessageStream(Object.entries(img.aiData).length ? [img.aiData, text] : [text]);
+    // Print text as it comes in.
+    let accumulatedText  = ""   // we made
+    for await (const chunk of result.stream) {
+      const chunkText = chunk.text();
+      accumulatedText  += chunkText
+      // process.stdout.write(chunkText);
+      setAnswer(accumulatedText)
+    }
   }
 
 
