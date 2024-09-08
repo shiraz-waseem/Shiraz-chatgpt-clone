@@ -34,8 +34,8 @@ app.get('/api/upload', function (req, res) {
 
 
 
-app.use("",appRoute)
+app.use("", appRoute)
 
 app.listen(PORT, () => {
-    console.log(`listening to port no ${PORT}`);
-  });
+  console.log(`listening to port no ${PORT}`);
+});

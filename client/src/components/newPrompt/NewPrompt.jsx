@@ -62,10 +62,10 @@ const NewPrompt = () => {
     // instead of sendMessage use sendMessageStream it will be first and send answer word by word
     const result = await chat.sendMessageStream(Object.entries(img.aiData).length ? [img.aiData, text] : [text]);
     // Print text as it comes in.
-    let accumulatedText  = ""   // we made
+    let accumulatedText = ""   // we made
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();
-      accumulatedText  += chunkText
+      accumulatedText += chunkText
       // process.stdout.write(chunkText);
       setAnswer(accumulatedText)
     }
