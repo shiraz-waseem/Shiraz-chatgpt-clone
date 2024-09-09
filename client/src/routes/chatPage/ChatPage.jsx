@@ -13,7 +13,7 @@ const ChatPage = () => {
   // console.log(chatId)
 
   // `chat, ${chatId}`
-  const { isLoading, error, data } = useQuery(`${chatId}`, () =>
+  const { isLoading, error, data } = useQuery(`chat, ${chatId}`, () =>
     fetch(`http://localhost:8000/api/chats/${chatId}`, {
       credentials: "include",
     }).then((res) => res.json())

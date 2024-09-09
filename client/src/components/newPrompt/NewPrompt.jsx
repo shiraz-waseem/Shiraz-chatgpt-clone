@@ -4,8 +4,9 @@ import Upload from '../upload/Upload';
 import { IKImage } from 'imagekitio-react';
 import model from '../../lib/gemini';
 import Markdown from "react-markdown"
+import { useMutation, useQueryClient } from "react-query";
 
-const NewPrompt = () => {
+const NewPrompt = ({ data }) => {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [img, setImg] = useState({
@@ -14,7 +15,7 @@ const NewPrompt = () => {
     dbData: {},    // image data
     aiData: {},   // added
   });
-
+  const queryClient = useQueryClient();
 
   //saving chat
   const chat = model.startChat({
@@ -34,41 +35,68 @@ const NewPrompt = () => {
   });
 
   const endRef = useRef(null);
+  const formRef = useRef(null);
 
   useEffect(() => {
     endRef.current.scrollIntoView({ behavior: "smooth" });
-  }, [question, answer]);
+  }, [data, question, answer, img.dbData]);
 
 
-  // const add = async () => {
-  //   const prompt = "Write a story about a magic backpack.";
+  const mutation = useMutation({
+    mutationFn: async (text) => {
+      return await fetch(`http://localhost:8000/api/chats/${data._id}`, {    // props ke through 
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question: question.length ? question : undefined,
+          answer,
+          img: img.dbData?.filePath || undefined
+        })
+      }).then((res) => res.json())
 
-  //   const result = await model.generateContent(prompt);
-  //   const response = await result.response
-  //   const text = response.text()
-  //   // console.log(result.response.text());
-  //   console.log(text)
-  // }
+      // if its success it returns chatId. (Backend sy bhej rhy)
+    }, onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: `chat, ${data._id}` })   // chat page py yeh query
+        .then(() => {
+          formRef.current.reset();   // reseting our form. Now ques answer "" empty hujaya ga after the answer
+          setQuestion("");
+          setAnswer("");
+          setImg({
+            isLoading: false,
+            error: "",
+            dbData: {},
+            aiData: {},
+          });
+        })
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  })
+
 
   const add = async (text, isInitial) => {
-    // // const prompt = "Write a story about a magic backpack.";
-    // const result = await model.generateContent(prompt);
-    // const response = await result.response
-    // // const text = response.text()
-    // // console.log(result.response.text());
-    // console.log(text)
 
-    if (!isInitial) setQuestion(text);   // agar false tw question set
-    // instead of sendMessage use sendMessageStream it will be first and send answer word by word
+    // means false
+    if (!isInitial) setQuestion(text);   // agar false tw question set. mtlb agar phela nahi ha
+
+    try {
     const result = await chat.sendMessageStream(Object.entries(img.aiData).length ? [img.aiData, text] : [text]);
-    // Print text as it comes in.
-    let accumulatedText = ""   // we made
+    let accumulatedText = ""   
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();
       accumulatedText += chunkText
-      // process.stdout.write(chunkText);
       setAnswer(accumulatedText)
     }
+    mutation.mutate();
+  }
+  catch (err) {
+    console.log(err);
+  }
   }
 
 
@@ -82,6 +110,20 @@ const NewPrompt = () => {
     add(text, false);
 
   }
+
+  // IN PRODUCTION WE DON'T NEED IT
+  const hasRun = useRef(false);
+
+
+  // when there is only one message. Jab new chat banata. means its question so generate answer and send to db
+  useEffect(()=>{
+    if(!hasRun.current){
+      if (data?.history?.length === 1){
+        add(data.history[0].parts[0].text, true)
+      }
+    }
+    hasRun.current = true;
+  },[])  // agar empty array de dia it will run twice as we have react.strictmode. Production mein it will run. Abhi twice is lia ke it will test bugs
 
   return (
     <>
@@ -108,7 +150,7 @@ const NewPrompt = () => {
       {/* <button onClick={add}>Test AI</button> */}
       {/* To see last message endRef and giving it padding */}
       <div className="endChat" ref={endRef}></div>
-      <form className="newForm" onSubmit={handleSubmit}>
+      <form className="newForm" onSubmit={handleSubmit} ref={formRef}>
         <Upload setImg={setImg} />
         <input id="file" type="file" multiple={false} hidden />
         <input type="text" name="text" placeholder="Ask anything..." />

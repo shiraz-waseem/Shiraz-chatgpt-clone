@@ -85,12 +85,16 @@ const fetchChatMessages = async (req, res) => {
 }
 
 
+// update the existing chat. We will send the question answer image together
 const updateMessages = async (req, res) => {
     const userId = req.auth.userId;
     const { question, answer, img } = req.body;
 
+
+    // Adding multiple items
     const newItems = [
-        ... (question ? [{ role: "user", parts: [{ text: question }], ...(img && { img }) }]   // img:img
+        // if there is question send user message otherwise empty. Phely wala msg ke lia
+        ... (question ? [{ role: "user", parts: [{ text: question }], ...(img && { img }) }]   // img:img. If there is img add otherwise it will be empty
             : []
         ),
         { role: "model", parts: [{ text: answer }] },  // question nahi tw answer hi aya from user
@@ -102,7 +106,7 @@ const updateMessages = async (req, res) => {
             {
                 $push: {
                     history: {
-                        $each: newItems
+                        $each: newItems   // send every single item
                     }
                 }
             }
