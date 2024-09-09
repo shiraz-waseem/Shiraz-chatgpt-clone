@@ -9,7 +9,7 @@ const ImageKit = require('imagekit');
 const cors = require("cors");
 const PORT = 8000;
 
-app.use(express.json()); // to parse req.body
+app.use(express.json()); // to parse req.body. Body mein json stringify mein bhej rhy huty
 app.use(
   cors({
     // origin: process.env.CLIENT_URL,
@@ -33,8 +33,15 @@ app.get('/api/upload', function (req, res) {
 
 
 
-
 app.use("", appRoute)
+
+// clert
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(401).send("Unauthenticated!");
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`listening to port no ${PORT}`);

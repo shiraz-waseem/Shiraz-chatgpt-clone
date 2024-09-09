@@ -73,13 +73,14 @@ const NewPrompt = () => {
 
 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     const text = e.target.text.value;  // text attribute pass
     if (!text) return;
 
     add(text, false);
+
   }
 
   return (

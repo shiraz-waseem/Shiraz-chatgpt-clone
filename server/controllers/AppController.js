@@ -2,7 +2,7 @@ const Chat = require("../models/chat");
 const UsersChat = require("../models/userChats")
 
 const AddingChats = async (req, res) => {
-    console.log(req.auth)
+    // console.log(req.auth)
     const userId = req.auth.userId;
     const { text } = req.body;
 
@@ -11,7 +11,7 @@ const AddingChats = async (req, res) => {
         const newChat = new Chat({
             userId: userId,
             history: [{
-                role: "users",
+                role: "user",
                 parts: [{ text }]
             }]
         })
@@ -37,6 +37,7 @@ const AddingChats = async (req, res) => {
         else {
             // IF EXISTS, PUSH THE CHAT TO THE EXISTING ARRAY
             await UsersChat.updateOne(
+                // first param to find other is to add
                 { userId: userId },
                 {
                     $push: {
@@ -48,7 +49,7 @@ const AddingChats = async (req, res) => {
                 }
             )
         }
-        res.status(201).send(newChat._id);
+        res.status(201).send(newChat._id);   // we will be redirect to that chatId
     } catch (err) {
         console.log(err);
         res.status(500).send("Error creating chat!");

@@ -1,8 +1,40 @@
 import React from 'react'
 import "./chatList.css"
 import { Link } from "react-router-dom"
+import { useQuery } from "react-query";
+
+
+// const handleSubmit = async (e) => {
+//   try {
+//     console.log("Sending request with text:", text);
+//     const response = await fetch("http://localhost:8000/api/userchats", {
+//       method: "GET",
+//       credentials: "include",
+//       headers: {
+//         "Content-Type": "application/json",
+//       }
+//     });
+
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! Status: ${response.status}`);
+//     }
+
+//     const data = await response.json();
+//     console.log('Success:', data);
+//   } catch (error) {
+//     console.error('Error during fetch:', error);
+//   }
+// }
 
 const ChatList = () => {
+  // first one is querykey through which we will fetch data other is queryfn
+  const { isLoading, error, data } = useQuery('userChats', () =>
+    fetch('http://localhost:8000/api/userchats', {
+      credentials: "include",
+    }).then((res) => res.json())
+  )
+
+
   return (
     <div className="chatList">
       <span className="title">DASHBOARD</span>
@@ -13,24 +45,20 @@ const ChatList = () => {
       <span className="title">RECENT CHATS</span>
 
       <div className="list">
-        <Link to={`/dashboard/chats/`}>
+        {/* <Link to={`/dashboard/chats/`}>
           My List Item
-        </Link>
-        <Link to={`/dashboard/chats/`}>
-          My List Item
-        </Link>
-        <Link to={`/dashboard/chats/`}>
-          My List Item
-        </Link>
-        <Link to={`/dashboard/chats/`}>
-          My List Item
-        </Link>
-        <Link to={`/dashboard/chats/`}>
-          My List Item
-        </Link>
-        <Link to={`/dashboard/chats/`}>
-          My List Item
-        </Link>
+        </Link> */}
+        {isLoading
+          ? "Loading..."
+          : error
+            ? "Something went wrong!" :
+            data?.map((chat) => (
+              <Link to={`/dashboard/chats/${chat._id}`} key={chat._id}>
+                {chat.title}
+              </Link>
+            ))
+        }
+
       </div>
       <hr />
 
