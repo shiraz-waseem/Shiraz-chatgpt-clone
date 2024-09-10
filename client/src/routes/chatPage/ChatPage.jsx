@@ -4,6 +4,7 @@ import NewPrompt from '../../components/newPrompt/NewPrompt'
 import { useQuery } from "react-query";
 import { useLocation } from "react-router-dom";
 import Markdown from 'react-markdown';
+import { IKImage } from 'imagekitio-react';
 
 const ChatPage = () => {
   const path = useLocation().pathname;
@@ -36,7 +37,7 @@ const ChatPage = () => {
                 ? "Something went wrong!"
                 : data?.history?.map((message, i) => (
                   <>
-                    {message.imp && (
+                    {message.img && (
                       <IKImage
                         urlEndpoint={process.env.REACT_APP_IMAGE_KIT_ENDPOINT}
                         path={message.img}

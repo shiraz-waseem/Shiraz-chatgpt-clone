@@ -19,15 +19,11 @@ const NewPrompt = ({ data }) => {
 
   //saving chat
   const chat = model.startChat({
-    history: [
-      {
-        role: "user",
-        parts: [{ text: "Hi my name is Bob" }],
-      },
-      {
-        role: "model",
-        parts: [{ text: "Hi Bob!" }],
-      },
+   history: [
+      data?.history.map(({ role, parts }) => ({
+        role,
+        parts: [{ text: parts[0].text }],    // gemini doesnt accept image so we get rid of it and just sent role and parts
+      })),
     ],
     generationConfig: {
       // maxOutputTokens: 100,
